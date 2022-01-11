@@ -1,17 +1,20 @@
-import io from "socket.io-client";
-import { useState, useContext, useEffect } from "react";
+import { useContext, useEffect } from "react";
 import { AuthContext } from "../contexts/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-import Chat from "../components/Chat";
+import Sidebar from "../components/ChatRoom/Sidebar";
+import ChatWindow from "../components/ChatRoom/ChatWindow";
 
-const socket = io.connect("http://localhost:5000");
+import { Row, Col } from "antd";
+import AddRoomModal from "../components/modals/AddRoomModal";
+import AddMemberModal from "../components/modals/AddMemberModal";
+
 const Home = () => {
-  const [room, setRoom] = useState("");
-  const [showChat, setShowChat] = useState(false);
+  // state
 
+  //context
   const {
-    auth: { isAuthenticated, user },
+    auth: { isAuthenticated },
   } = useContext(AuthContext);
 
   const navigate = useNavigate();
@@ -22,30 +25,19 @@ const Home = () => {
     }
   });
 
-  const joinRoom = () => {
-    if (user.username !== "" && room !== "") {
-      socket.emit("join-room", room);
-
-      setShowChat(true);
-    }
-  };
-
   return (
-    <div className="container">
-      {!showChat ? (
-        <div className="joinChatContainer">
-          <h3>Join a chat</h3>
-          <input
-            type="text"
-            placeholder="Room ID..."
-            onChange={(e) => setRoom(e.target.value)}
-          />
-          <button onClick={joinRoom}>Join</button>
-        </div>
-      ) : (
-        <Chat socket={socket} username={user.username} room={room} />
-      )}
-    </div>
+    <>
+      <AddRoomModal />
+      <AddMemberModal />
+      <Row>
+        <Col span={6}>
+          <Sidebar />
+        </Col>
+        <Col span={18}>
+          <ChatWindow />
+        </Col>
+      </Row>
+    </>
   );
 };
 

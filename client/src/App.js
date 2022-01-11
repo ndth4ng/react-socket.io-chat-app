@@ -1,22 +1,22 @@
-import "./index.css";
-
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-import UserContextProvider from "./contexts/UserContext";
 import AuthContextProvider from "./contexts/AuthContext";
 import Home from "./view/Home";
 import Login from "./view/Login";
+import Register from "./view/Register";
+import AppContextProvider from "./contexts/AppContext";
 
 function App() {
   return (
     <AuthContextProvider>
-      <UserContextProvider>
+      <AppContextProvider>
         <BrowserRouter>
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/login" element={<Login />} />
+            <Route path="/register" element={<Register />} />
           </Routes>
         </BrowserRouter>
-      </UserContextProvider>
+      </AppContextProvider>
     </AuthContextProvider>
   );
 }

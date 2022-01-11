@@ -27,9 +27,13 @@ connectDB();
 // Route
 const authRouter = require("./routes/auth");
 const userRouter = require("./routes/user");
+const roomRouter = require("./routes/room");
+const messageRouter = require("./routes/message");
 
 app.use("/api/auth", authRouter);
 app.use("/api/user", userRouter);
+app.use("/api/room", roomRouter);
+app.use("/api/message", messageRouter);
 
 // Socket.io
 const server = http.createServer(app);
@@ -41,20 +45,27 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  console.log(`User connected with ID: ${socket.id}`);
-
+  // console.log(`User connected with ID: ${socket.id}`);
+  let currentRoom;
   socket.on("join-room", (roomId) => {
-    socket.join(roomId);
+    if (currentRoom) {
+      socket.leave(currentRoom);
+      console.log(`User ID: ${socket.id} leaved room ${currentRoom}`);
+    }
 
+    socket.join(roomId);
     console.log(`User ID: ${socket.id} joined room ${roomId}`);
+
+    currentRoom = roomId;
   });
 
   socket.on("send-message", (data) => {
+    // console.log(data);
     socket.to(data.room).emit("receive-message", data);
   });
 
   socket.on("disconnect", () => {
-    console.log(`User disconnected: ${socket.id}`);
+    // console.log(`User disconnected: ${socket.id}`);
   });
 });
 
