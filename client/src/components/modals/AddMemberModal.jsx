@@ -13,6 +13,7 @@ const AddMemberModal = () => {
     const username = form.getFieldValue().username;
 
     await addMember(username);
+
     form.resetFields();
   };
 

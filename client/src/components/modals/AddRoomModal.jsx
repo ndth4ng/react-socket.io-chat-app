@@ -23,6 +23,7 @@ const AddRoomModal = () => {
     setAddRoomModal(false);
     form.resetFields();
   };
+
   return (
     <Modal
       title="Join a room"

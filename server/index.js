@@ -45,9 +45,16 @@ const io = new Server(server, {
 });
 
 io.on("connection", (socket) => {
-  // console.log(`User connected with ID: ${socket.id}`);
+  console.log(`User connected with ID: ${socket.id}`);
+
+  socket.on("login", (user) => {
+    socket.join(user.username);
+    console.log(`${user.username} is logged in.`);
+  });
+
   let currentRoom;
   socket.on("join-room", (roomId) => {
+    // leave current room then join a new room
     if (currentRoom) {
       socket.leave(currentRoom);
       console.log(`User ID: ${socket.id} leaved room ${currentRoom}`);
@@ -59,13 +66,43 @@ io.on("connection", (socket) => {
     currentRoom = roomId;
   });
 
+  socket.on("leave-room", (data) => {
+    socket.leave(data.room._id);
+    console.log(`${data.username} has leave room ${data.room._id}`);
+
+    // for users not in this room
+    data.room.members.forEach((item) => {
+      if (item.member.username !== data.username) {
+        socket.to(item.member.username).emit("reload-leave-room-out");
+      }
+    });
+
+    // for users in this room
+    socket.to(data.room._id).emit("reload-leave-room-in", data);
+  });
+
   socket.on("send-message", (data) => {
     // console.log(data);
     socket.to(data.room).emit("receive-message", data);
   });
 
+  socket.on("add-member", (data) => {
+    // for new member
+    socket.to(data.username).emit("reload-room", data.author);
+
+    //for members in this room (in the chat room)
+    socket.to(data.room._id).emit("reload-room-members-in", data);
+
+    // for members in this room  (not in the chat room)
+    data.room.members.forEach((item) => {
+      if (item.member.username !== data.author) {
+        socket.to(item.member.username).emit("reload-leave-room-out");
+      }
+    });
+  });
+
   socket.on("disconnect", () => {
-    // console.log(`User disconnected: ${socket.id}`);
+    console.log(`User disconnected: ${socket.id}`);
   });
 });
 

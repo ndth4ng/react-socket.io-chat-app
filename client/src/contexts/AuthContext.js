@@ -5,6 +5,10 @@ import { authReducer } from "../reducers/authReducer";
 import { API_URL, LOCAL_STORAGE_TOKEN_NAME } from "../constants";
 import setAuthToken from "../utils/setAuthToken";
 
+//socket
+import io from "socket.io-client";
+export const socket = io.connect("http://localhost:5000");
+
 export const AuthContext = createContext();
 
 const AuthContextProvider = ({ children }) => {
@@ -34,6 +38,8 @@ const AuthContextProvider = ({ children }) => {
             user: res.data.user,
           },
         });
+
+        socket.emit("login", res.data.user);
       }
     } catch (err) {
       localStorage.removeItem(LOCAL_STORAGE_TOKEN_NAME);

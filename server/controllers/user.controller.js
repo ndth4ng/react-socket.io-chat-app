@@ -5,7 +5,11 @@ module.exports = {
     try {
       const result = await User.findOne({ username: username });
 
-      if (result) return result._id;
+      if (result) {
+        return result._id;
+      } else {
+        return null;
+      }
     } catch (error) {}
   },
 };

@@ -8,6 +8,8 @@ import ChatWindow from "../components/ChatRoom/ChatWindow";
 import { Row, Col } from "antd";
 import AddRoomModal from "../components/modals/AddRoomModal";
 import AddMemberModal from "../components/modals/AddMemberModal";
+import { AppContext } from "../contexts/AppContext";
+import LeaveRoomModal from "../components/modals/LeaveRoomModal";
 
 const Home = () => {
   // state
@@ -16,6 +18,9 @@ const Home = () => {
   const {
     auth: { isAuthenticated },
   } = useContext(AuthContext);
+
+  const { addRoomModal, addMemberModal, leaveRoomModal } =
+    useContext(AppContext);
 
   const navigate = useNavigate();
   useEffect(() => {
@@ -27,8 +32,9 @@ const Home = () => {
 
   return (
     <>
-      <AddRoomModal />
-      <AddMemberModal />
+      {addRoomModal && <AddRoomModal />}
+      {leaveRoomModal && <LeaveRoomModal />}
+      {addMemberModal && <AddMemberModal />}
       <Row>
         <Col span={6}>
           <Sidebar />
