@@ -40,7 +40,7 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "https://ndth4ng-chatapp.netlify.app/",
+    origin: "https://ndth4ng-chatapp.netlify.app",
   },
 });
 
