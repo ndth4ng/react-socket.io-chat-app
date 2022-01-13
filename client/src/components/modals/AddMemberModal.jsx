@@ -30,7 +30,7 @@ const AddMemberModal = () => {
     >
       <Form layout="vertical" form={form}>
         <Form.Item label="Username" name="username">
-          <Input placeholder="Enter username..." />
+          <Input autoFocus placeholder="Enter username..." />
         </Form.Item>
       </Form>
     </Modal>

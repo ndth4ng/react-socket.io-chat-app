@@ -33,7 +33,7 @@ const AddRoomModal = () => {
     >
       <Form layout="vertical" form={form}>
         <Form.Item label="Room name" name="name">
-          <Input className="mb-4" placeholder="Enter room name..." />
+          <Input autoFocus className="mb-4" placeholder="Enter room name..." />
         </Form.Item>
         <Form.Item label="Room description" name="description">
           <Input placeholder="Enter room description..." />

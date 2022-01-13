@@ -61,6 +61,7 @@ const Login = () => {
               prefix={<UserOutlined className="pr-2 border-r" />}
               className="px-4 py-2 rounded-md "
               placeholder="Your Username"
+              autoFocus
             />
           </Form.Item>
           <Form.Item

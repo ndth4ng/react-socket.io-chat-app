@@ -1,5 +1,5 @@
 import { Button, Form, Input } from "antd";
-import { useContext } from "react";
+import { useContext, useRef } from "react";
 import { AppContext } from "../../contexts/AppContext";
 import Message from "./Message";
 
@@ -9,7 +9,6 @@ import ChatHeader from "./ChatHeader";
 const ChatWindow = () => {
   //context
   const { room, messages, sendMessage } = useContext(AppContext);
-
   const [form] = Form.useForm();
 
   const submitForm = async () => {
@@ -54,6 +53,7 @@ const ChatWindow = () => {
               <Input
                 className="border-2 border-green-500"
                 placeholder="Text here..."
+                autoFocus
                 onPressEnter={submitForm}
               />
             </Form.Item>
