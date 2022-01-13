@@ -12,8 +12,7 @@ const ChatWindow = () => {
 
   const [form] = Form.useForm();
 
-  const submitForm = async (e) => {
-    e.preventDefault();
+  const submitForm = async () => {
     const content = form.getFieldValue().content;
     form.resetFields();
     sendMessage(content, room);
@@ -49,22 +48,19 @@ const ChatWindow = () => {
 
           <Form
             form={form}
-            onFinish={submitForm}
             className="flex items-center justify-between mt-4 border"
           >
             <Form.Item name="content" className="w-full mb-0">
               <Input
                 className="border-2 border-green-500"
                 placeholder="Text here..."
-                onKeyPress={(e) => {
-                  e.key === "Enter" && submitForm(e);
-                }}
+                onPressEnter={submitForm}
               />
             </Form.Item>
             <Form.Item className="m-0">
               <Button
                 className="h-full border-2 border-green-500"
-                htmlType="submit"
+                onClick={submitForm}
               >
                 Send
               </Button>
