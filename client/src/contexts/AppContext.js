@@ -29,6 +29,14 @@ const AppContextProvider = ({ children }) => {
 
   useEffect(() => {
     isAuthenticated && getAllRooms();
+    // reset state
+    if (!isAuthenticated) {
+      setRoom(null);
+      setRoomState({
+        isLoading: true,
+        rooms: [],
+      });
+    }
   }, [isAuthenticated]);
 
   // When receive message from other user

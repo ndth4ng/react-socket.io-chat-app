@@ -1,5 +1,5 @@
 import axios from "axios";
-import { createContext, useEffect, useReducer } from "react";
+import { createContext, useEffect, useReducer, useState } from "react";
 import { authReducer } from "../reducers/authReducer";
 
 import { API_URL, LOCAL_STORAGE_TOKEN_NAME } from "../constants";
@@ -16,6 +16,11 @@ const AuthContextProvider = ({ children }) => {
     authLoading: true,
     isAuthenticated: false,
     user: null,
+  });
+
+  const [error, setError] = useState({
+    isShow: false,
+    content: "",
   });
 
   useEffect(() => {
@@ -60,11 +65,27 @@ const AuthContextProvider = ({ children }) => {
 
       if (res.data.success) {
         localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, res.data.accessToken);
+        loadUser();
+      } else {
+        setErrorMessage(res.data.message);
       }
-
-      await loadUser();
     } catch (err) {
-      console.log(err);
+      setErrorMessage(err.message);
+    }
+  };
+
+  const registerUser = async (registerData) => {
+    try {
+      const res = await axios.post(`${API_URL}/auth/register`, registerData);
+
+      if (res.data.success) {
+        localStorage.setItem(LOCAL_STORAGE_TOKEN_NAME, res.data.accessToken);
+        loadUser();
+      } else {
+        setErrorMessage(res.data.message);
+      }
+    } catch (err) {
+      setErrorMessage(err.message);
     }
   };
 
@@ -76,7 +97,21 @@ const AuthContextProvider = ({ children }) => {
     });
   };
 
-  const authContextData = { auth, loginUser, logoutUser };
+  const setErrorMessage = (message) => {
+    setError({
+      isShow: true,
+      content: message,
+    });
+
+    setTimeout(() => {
+      setError({
+        isShow: false,
+        content: null,
+      });
+    }, 3000); // 3s
+  };
+
+  const authContextData = { auth, loginUser, logoutUser, registerUser, error };
   return (
     <AuthContext.Provider value={authContextData}>
       {children}

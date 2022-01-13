@@ -14,9 +14,10 @@ module.exports = {
       const user = await User.findOne({ username });
 
       if (user)
-        return res
-          .status(400)
-          .json({ success: false, message: "Username already exists" });
+        return res.json({
+          success: false,
+          message: "This username already exist.",
+        });
 
       const newUser = new User({
         username: username,
@@ -26,15 +27,21 @@ module.exports = {
         if (err) {
           console.log(err);
         } else {
+          const accessToken = jwt.sign(
+            { userId: data._id },
+            process.env.ACCESS_TOKEN_SECRET
+          );
+
           res.status(200).json({
             success: true,
             message: "User created successfully",
             user: data,
+            accessToken: accessToken,
           });
         }
       });
     } catch (err) {
-      console.log(err);
+      res.json({ success: false, message: err.message });
     }
   },
 
@@ -44,16 +51,16 @@ module.exports = {
     try {
       const user = await User.findOne({ username });
       if (!user)
-        return res.status(400).json({
+        return res.json({
           success: false,
-          message: "Incorrect username or password",
+          message: "Username or password is incorrect.",
           user: null,
         });
 
       if (password !== user.password) {
-        return res.status(400).json({
+        return res.json({
           success: false,
-          message: "Incorrect username or password",
+          message: "Username or password is incorrect.",
           user: null,
         });
       } else {
@@ -70,7 +77,7 @@ module.exports = {
         });
       }
     } catch (err) {
-      console.log(err);
+      res.json({ success: false, message: err.message });
     }
   },
 
@@ -84,7 +91,7 @@ module.exports = {
 
       res.json({ success: true, user: user });
     } catch (err) {
-      console.log(err);
+      res.json({ success: false, message: err.message });
     }
   },
 };

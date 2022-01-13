@@ -1,18 +1,19 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/AuthContext";
+import { Form, Input, Button, Spin } from "antd";
 
 import { Link, useNavigate } from "react-router-dom";
-
-import { Spin } from "antd";
+import { LoadingOutlined, LockOutlined, UserOutlined } from "@ant-design/icons";
 
 const Login = () => {
-  const [loginData, setLoginData] = useState({
-    username: "",
-    password: "",
-  });
+  //state
+  const [form] = Form.useForm();
+  const [loading, setLoading] = useState(false);
 
+  //context
   const {
     auth: { isAuthenticated, authLoading },
+    error: { isShow, content },
     loginUser,
   } = useContext(AuthContext);
 
@@ -24,21 +25,16 @@ const Login = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleChange = (e) => {
-    setLoginData((prev) => {
-      return { ...prev, [e.target.name]: e.target.value };
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    loginUser(loginData);
+  const onFinish = async () => {
+    setLoading(true);
+    await loginUser(form.getFieldValue());
+    setLoading(false);
   };
 
   let body;
 
   if (authLoading) {
-    body = <Spin />;
+    body = <Spin indicator={<LoadingOutlined style={{ color: "#fff" }} />} />;
   } else {
     body = (
       <div className="w-full max-w-md px-16 py-10 bg-white rounded-lg">
@@ -46,41 +42,61 @@ const Login = () => {
           Log in to your account 🔐
         </h1>
 
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email">Username</label>
-            <input
-              name="username"
-              type="text"
-              className="w-full p-2 mb-4 text-sm transition duration-150 ease-in-out border rounded-md outline-none text-primary"
+        <Form
+          form={form}
+          onFinish={onFinish}
+          layout="vertical"
+          className="flex flex-col items-center"
+        >
+          {/* Error handle */}
+          {isShow && <span className="text-red-500 ">{content}</span>}
+          {/* Error handle */}
+
+          <Form.Item
+            name="username"
+            className="w-full mb-2"
+            rules={[{ required: true, message: "Please input your username!" }]}
+          >
+            <Input
+              prefix={<UserOutlined className="pr-2 border-r" />}
+              className="px-4 py-2 rounded-md "
               placeholder="Your Username"
-              onChange={handleChange}
             />
-          </div>
-          <div>
-            <label htmlFor="password">Password</label>
-            <input
-              name="password"
-              type="password"
-              className="w-full p-2 mb-4 text-sm transition duration-150 ease-in-out border rounded-md outline-none text-primary"
+          </Form.Item>
+          <Form.Item
+            className="w-full mb-4"
+            name="password"
+            rules={[{ required: true, message: "Please input your password!" }]}
+          >
+            <Input.Password
+              prefix={<LockOutlined className="pr-2 border-r" />}
+              className="px-4 py-2 text-sm rounded-md "
               placeholder="Your Password"
-              onChange={handleChange}
             />
-          </div>
-          <div className="flex items-center justify-center mt-6">
-            <button className="px-6 py-2 text-sm text-white bg-green-500 rounded">
-              Login
+          </Form.Item>
+          <Form.Item>
+            <Button
+              className="px-4 py-1 text-white bg-green-500 border-none rounded hover:bg-green-600"
+              type="primary"
+              htmlType="submit"
+            >
+              {loading ? (
+                <LoadingOutlined style={{ color: "#fff" }} />
+              ) : (
+                "Login"
+              )}
+            </Button>
+          </Form.Item>
+        </Form>
+
+        <div className="flex justify-between">
+          <p>Do not have an account?</p>
+          <Link to="/register">
+            <button className="px-4 py-1 text-sm text-white transition duration-300 bg-green-500 rounded hover:bg-green-600 ease">
+              Register
             </button>
-          </div>
-          <div className="flex justify-between mt-6">
-            <p>Do not have an account?</p>
-            <Link to="/register">
-              <button className="px-4 py-1 text-sm text-white bg-green-500 rounded">
-                Register
-              </button>
-            </Link>
-          </div>
-        </form>
+          </Link>
+        </div>
       </div>
     );
   }

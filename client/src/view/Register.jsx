@@ -1,17 +1,20 @@
 import { useContext, useEffect, useState } from "react";
 import { AuthContext } from "../contexts/AuthContext";
+import { Form, Input, Button } from "antd";
 
 import { Link, useNavigate } from "react-router-dom";
+import { LoadingOutlined, LockOutlined, UserOutlined } from "@ant-design/icons";
 
 const Register = () => {
-  const [registerData, setRegisterData] = useState({
-    username: "",
-    password: "",
-  });
+  //state
+  const [loading, setLoading] = useState(false);
+  const [form] = Form.useForm();
 
+  //context
   const {
     auth: { isAuthenticated },
-    loginUser,
+    error: { isShow, content },
+    registerUser,
   } = useContext(AuthContext);
 
   const navigate = useNavigate();
@@ -22,15 +25,14 @@ const Register = () => {
     }
   }, [isAuthenticated, navigate]);
 
-  const handleChange = (e) => {
-    setRegisterData((prev) => {
-      return { ...prev, [e.target.name]: e.target.value };
-    });
-  };
-
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    // loginUser(loginData);
+  const onFinish = async () => {
+    setLoading(true);
+    const formData = {
+      username: form.getFieldValue("username"),
+      password: form.getFieldValue("password"),
+    };
+    await registerUser(formData);
+    setLoading(false);
   };
   return (
     <div className="flex h-screen bg-gray-700">
@@ -39,51 +41,94 @@ const Register = () => {
           Register your account 🔐
         </h1>
 
-        <form onSubmit={handleSubmit}>
-          <div>
-            <label htmlFor="email">Username</label>
-            <input
-              name="username"
-              type="text"
-              className="w-full p-2 mb-4 text-sm transition duration-150 ease-in-out border rounded-md outline-none text-primary"
+        <Form
+          form={form}
+          onFinish={onFinish}
+          layout="vertical"
+          className="flex flex-col items-center"
+        >
+          {/* Error handle */}
+          {isShow && <span className="text-red-500 ">{content}</span>}
+          {/* Error handle */}
+
+          <Form.Item
+            name="username"
+            className="w-full mb-2"
+            rules={[{ required: true, message: "Please input your username!" }]}
+          >
+            <Input
+              prefix={<UserOutlined className="pr-2 border-r" />}
+              className="px-4 py-2 rounded-md "
               placeholder="Your Username"
-              onChange={handleChange}
             />
-          </div>
-          <div>
-            <label htmlFor="password">Password</label>
-            <input
-              name="password"
-              type="password"
-              className="w-full p-2 mb-4 text-sm transition duration-150 ease-in-out border rounded-md outline-none text-primary"
+          </Form.Item>
+
+          <Form.Item
+            className="w-full mb-2"
+            name="password"
+            rules={[{ required: true, message: "Please input your password!" }]}
+          >
+            <Input.Password
+              prefix={<LockOutlined className="pr-2 border-r" />}
+              className="px-4 py-2 text-sm rounded-md "
               placeholder="Your Password"
-              onChange={handleChange}
             />
-          </div>
-          <div>
-            <label htmlFor="confirm-password">Confirm Password</label>
-            <input
-              name="confirm-password"
-              type="password"
-              className="w-full p-2 mb-4 text-sm transition duration-150 ease-in-out border rounded-md outline-none text-primary"
-              placeholder="Your confirm Password"
-              onChange={handleChange}
+          </Form.Item>
+
+          <Form.Item
+            className="w-full mb-4"
+            name="confirm"
+            dependencies={["password"]}
+            rules={[
+              {
+                required: true,
+                message: "Please confirm your password!",
+              },
+              ({ getFieldValue }) => ({
+                validator(_, value) {
+                  if (!value || getFieldValue("password") === value) {
+                    return Promise.resolve();
+                  }
+
+                  return Promise.reject(
+                    new Error(
+                      "The two passwords that you entered do not match!"
+                    )
+                  );
+                },
+              }),
+            ]}
+          >
+            <Input.Password
+              prefix={<LockOutlined className="pr-2 border-r" />}
+              className="px-4 py-2 text-sm rounded-md "
+              placeholder="Confirm Password"
             />
-          </div>
-          <div className="flex items-center justify-center mt-6">
-            <button className="px-6 py-2 text-sm text-white bg-green-500 rounded">
-              Register
+          </Form.Item>
+
+          <Form.Item>
+            <Button
+              className="px-4 py-1 text-white bg-green-500 border-none rounded hover:bg-green-600"
+              type="primary"
+              htmlType="submit"
+            >
+              {loading ? (
+                <LoadingOutlined style={{ color: "#fff" }} />
+              ) : (
+                "Login"
+              )}
+            </Button>
+          </Form.Item>
+        </Form>
+
+        <div className="flex justify-between">
+          <p>Already have an account?</p>
+          <Link to="/login">
+            <button className="px-4 py-1 text-sm text-white bg-green-500 rounded">
+              Login
             </button>
-          </div>
-          <div className="flex justify-between mt-6">
-            <p>Already have an account?</p>
-            <Link to="/login">
-              <button className="px-4 py-1 text-sm text-white bg-green-500 rounded">
-                Login
-              </button>
-            </Link>
-          </div>
-        </form>
+          </Link>
+        </div>
       </div>
     </div>
   );

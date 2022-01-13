@@ -23,9 +23,7 @@ const ChatWindow = () => {
   if (!room) {
     body = (
       <div className="flex items-center justify-center h-full">
-        <h1 className="text-xl font-bold text-green-500">
-          Choose a room to start.
-        </h1>
+        <h1 className="text-xl font-bold text-green-500">Choose a room.</h1>
       </div>
     );
   } else {

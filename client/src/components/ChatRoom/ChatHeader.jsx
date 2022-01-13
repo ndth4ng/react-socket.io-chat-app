@@ -30,9 +30,13 @@ const ChatHeader = () => {
 
   return (
     <div className="flex items-center justify-between p-4 border-b h-14">
-      <div className="flex flex-col flex-1">
-        <span className="font-bold">{room?.name}</span>
-        <span>{room?.description}</span>
+      <div className="flex flex-col flex-1 overflow-hidden">
+        <Tooltip title={room?.name}>
+          <span className="font-bold">{room?.name}</span>
+        </Tooltip>
+        <Tooltip title={room?.description}>
+          <span>{room?.description}</span>
+        </Tooltip>
       </div>
       <div className="flex items-center justify-center flex-1 space-x-2">
         <Avatar.Group className="space-x-2" size="small" maxCount={5}>
