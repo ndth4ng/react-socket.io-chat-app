@@ -12,10 +12,11 @@ const ChatWindow = () => {
 
   const [form] = Form.useForm();
 
-  const submitForm = async () => {
+  const submitForm = async (e) => {
+    e.preventDefault();
     const content = form.getFieldValue().content;
-    await sendMessage(content, room);
     form.resetFields();
+    sendMessage(content, room);
   };
 
   let body;
@@ -56,7 +57,7 @@ const ChatWindow = () => {
                 className="border-2 border-green-500"
                 placeholder="Text here..."
                 onKeyPress={(e) => {
-                  e.key === "Enter" && submitForm();
+                  e.key === "Enter" && submitForm(e);
                 }}
               />
             </Form.Item>
