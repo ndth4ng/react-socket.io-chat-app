@@ -4,6 +4,7 @@ import { AuthContext } from "./AuthContext";
 import { openNotification } from "../utils/openNotifycation";
 
 import { socket } from "./AuthContext";
+import { API_URL } from "../constants";
 
 export const AppContext = createContext();
 
@@ -84,7 +85,7 @@ const AppContextProvider = ({ children }) => {
   }, []);
 
   const getAllRooms = async () => {
-    const res = await axios.get(`http://localhost:5000/api/room/`);
+    const res = await axios.get(`${API_URL}/api/room/`);
 
     if (res.data.success) {
       setRoomState({ isLoading: false, rooms: res.data.rooms });
@@ -92,7 +93,7 @@ const AppContextProvider = ({ children }) => {
   };
 
   const joinRoom = async (room, user) => {
-    const res = await axios.post("http://localhost:5000/api/room/", {
+    const res = await axios.post(`${API_URL}/api/room/`, {
       room,
       user,
     });
@@ -105,9 +106,7 @@ const AppContextProvider = ({ children }) => {
   };
 
   const getMessages = async (room) => {
-    const res = await axios.get(
-      `http://localhost:5000/api/message/${room._id}`
-    );
+    const res = await axios.get(`${API_URL}/api/message/${room._id}`);
 
     if (res.data.success) {
       setRoom(room);
@@ -119,7 +118,7 @@ const AppContextProvider = ({ children }) => {
 
   const sendMessage = async (content, room) => {
     try {
-      const res = await axios.post("http://localhost:5000/api/message/", {
+      const res = await axios.post(`${API_URL}/api/message/`, {
         content,
         room: room._id,
       });
@@ -133,10 +132,10 @@ const AppContextProvider = ({ children }) => {
 
   const addMember = async (username) => {
     try {
-      const res = await axios.post(
-        "http://localhost:5000/api/room/add-member/",
-        { username, roomId: room._id }
-      );
+      const res = await axios.post(`${API_URL}/api/room/add-member/`, {
+        username,
+        roomId: room._id,
+      });
 
       if (res.data.success) {
         await socket.emit("add-member", {
@@ -160,12 +159,9 @@ const AppContextProvider = ({ children }) => {
 
   const leaveRoom = async () => {
     try {
-      const res = await axios.put(
-        "http://localhost:5000/api/room/delete-member/",
-        {
-          roomId: room._id,
-        }
-      );
+      const res = await axios.put(`${API_URL}/api/room/delete-member/`, {
+        roomId: room._id,
+      });
 
       if (res.data.success) {
         await socket.emit("leave-room", {
