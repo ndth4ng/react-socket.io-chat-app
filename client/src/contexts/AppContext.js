@@ -85,7 +85,7 @@ const AppContextProvider = ({ children }) => {
   }, []);
 
   const getAllRooms = async () => {
-    const res = await axios.get(`${API_URL}/api/room/`);
+    const res = await axios.get(`${API_URL}/room/`);
 
     if (res.data.success) {
       setRoomState({ isLoading: false, rooms: res.data.rooms });
@@ -93,7 +93,7 @@ const AppContextProvider = ({ children }) => {
   };
 
   const joinRoom = async (room, user) => {
-    const res = await axios.post(`${API_URL}/api/room/`, {
+    const res = await axios.post(`${API_URL}/room/`, {
       room,
       user,
     });
@@ -106,7 +106,7 @@ const AppContextProvider = ({ children }) => {
   };
 
   const getMessages = async (room) => {
-    const res = await axios.get(`${API_URL}/api/message/${room._id}`);
+    const res = await axios.get(`${API_URL}/message/${room._id}`);
 
     if (res.data.success) {
       setRoom(room);
@@ -118,7 +118,7 @@ const AppContextProvider = ({ children }) => {
 
   const sendMessage = async (content, room) => {
     try {
-      const res = await axios.post(`${API_URL}/api/message/`, {
+      const res = await axios.post(`${API_URL}/message/`, {
         content,
         room: room._id,
       });
@@ -132,7 +132,7 @@ const AppContextProvider = ({ children }) => {
 
   const addMember = async (username) => {
     try {
-      const res = await axios.post(`${API_URL}/api/room/add-member/`, {
+      const res = await axios.post(`${API_URL}/room/add-member/`, {
         username,
         roomId: room._id,
       });
@@ -159,7 +159,7 @@ const AppContextProvider = ({ children }) => {
 
   const leaveRoom = async () => {
     try {
-      const res = await axios.put(`${API_URL}/api/room/delete-member/`, {
+      const res = await axios.put(`${API_URL}/room/delete-member/`, {
         roomId: room._id,
       });
 
