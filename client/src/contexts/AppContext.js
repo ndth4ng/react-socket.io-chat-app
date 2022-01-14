@@ -19,9 +19,13 @@ const AppContextProvider = ({ children }) => {
 
   const [messages, setMessages] = useState([]);
 
+  //modal
   const [addRoomModal, setAddRoomModal] = useState(false);
   const [leaveRoomModal, setLeaveRoomModal] = useState(false);
   const [addMemberModal, setAddMemberModal] = useState(false);
+
+  // sidebar drawer
+  const [sidebarDrawer, setSidebarDrawer] = useState(false);
 
   //context
   const {
@@ -176,6 +180,8 @@ const AppContextProvider = ({ children }) => {
   };
 
   const appContextData = {
+    sidebarDrawer,
+    setSidebarDrawer,
     messages,
     room,
     roomState,

@@ -21,13 +21,13 @@ const ChatWindow = () => {
 
   if (!room) {
     body = (
-      <div className="flex items-center justify-center h-full">
+      <div className="flex items-center h-[calc(100%-56px)] justify-center md:mt-0 mt-[56px] w-screen md:w-full">
         <h1 className="text-xl font-bold text-green-500">Choose a room.</h1>
       </div>
     );
   } else {
     body = (
-      <>
+      <div className="overflow-hidden h-[calc(100%-56px)] w-screen md:w-full md:h-full md:mt-0 mt-[56px] fixed md:static">
         <ChatHeader />
 
         <div className="flex justify-end flex-col p-4 h-[calc(100%-56px)]">
@@ -67,7 +67,7 @@ const ChatWindow = () => {
             </Form.Item>
           </Form>
         </div>
-      </>
+      </div>
     );
   }
 

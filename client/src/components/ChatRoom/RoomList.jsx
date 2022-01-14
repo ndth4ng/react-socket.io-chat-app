@@ -14,7 +14,7 @@ const RoomList = () => {
   } = useContext(AppContext);
 
   return (
-    <Collapse defaultActiveKey={["1"]}>
+    <Collapse defaultActiveKey={["1"]} className="">
       <Panel header="Room list" key="1">
         {isLoading ? (
           <Spin indicator={<LoadingOutlined style={{ color: "#22C55E" }} />} />

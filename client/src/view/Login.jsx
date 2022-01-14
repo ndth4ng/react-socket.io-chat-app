@@ -102,7 +102,7 @@ const Login = () => {
     );
   }
   return (
-    <div className="flex items-center justify-center h-screen bg-gray-700">
+    <div className="flex items-center justify-center w-screen h-screen bg-gray-700">
       {body}
     </div>
   );

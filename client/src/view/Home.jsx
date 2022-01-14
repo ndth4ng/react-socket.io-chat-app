@@ -36,10 +36,10 @@ const Home = () => {
       {leaveRoomModal && <LeaveRoomModal />}
       {addMemberModal && <AddMemberModal />}
       <Row>
-        <Col span={6}>
+        <Col sm={24} md={6}>
           <Sidebar />
         </Col>
-        <Col span={18}>
+        <Col sm={24} md={18}>
           <ChatWindow />
         </Col>
       </Row>

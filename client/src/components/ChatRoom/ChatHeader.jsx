@@ -38,8 +38,8 @@ const ChatHeader = () => {
           <span>{room?.description}</span>
         </Tooltip>
       </div>
-      <div className="flex items-center justify-center flex-1 space-x-2">
-        <Avatar.Group className="space-x-2" size="small" maxCount={5}>
+      <div className="hidden md:flex items-center justify-center flex-1 space-x-2">
+        <Avatar.Group className="md:block space-x-2" size="small" maxCount={5}>
           {room?.members.map((member, index) => {
             return (
               <Tooltip title={member.member.username} key={index}>
@@ -51,7 +51,7 @@ const ChatHeader = () => {
           })}
         </Avatar.Group>
       </div>
-      <div className="flex justify-end flex-1">
+      <div className="flex justify-end items-center flex-1">
         <Dropdown overlay={menu} trigger={["click"]}>
           <span className="text-2xl cursor-pointer">
             <MoreOutlined />
