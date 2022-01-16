@@ -8,21 +8,22 @@ const { Panel } = Collapse;
 const RoomList = () => {
   //context
   const {
-    roomState: { rooms, isLoading },
+    // roomState: { rooms, isLoading },
+    appState: { rooms, isLoadingRooms },
     setAddRoomModal,
-    getMessages,
+    chooseRoom,
   } = useContext(AppContext);
 
   return (
     <Collapse defaultActiveKey={["1"]} className="">
       <Panel header="Room list" key="1">
-        {isLoading ? (
+        {isLoadingRooms ? (
           <Spin indicator={<LoadingOutlined style={{ color: "#22C55E" }} />} />
         ) : (
           rooms.map((room, index) => {
             return (
               <Typography.Link
-                onClick={() => getMessages(room)}
+                onClick={() => chooseRoom(room)}
                 key={index}
                 className="block px-4 py-2 mb-2 text-white truncate bg-green-500 rounded-lg"
               >

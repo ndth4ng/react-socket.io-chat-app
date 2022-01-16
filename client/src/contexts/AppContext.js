@@ -10,14 +10,14 @@ export const AppContext = createContext();
 
 const AppContextProvider = ({ children }) => {
   //state
-  const [roomState, setRoomState] = useState({
-    isLoading: true,
+  const [appState, setAppState] = useState({
+    isLoadingRooms: true,
     rooms: [],
+    room: null,
+    messages: [],
+    page: 1,
+    hasMore: false,
   });
-
-  const [room, setRoom] = useState(null);
-
-  const [messages, setMessages] = useState([]);
 
   //modal
   const [addRoomModal, setAddRoomModal] = useState(false);
@@ -36,10 +36,14 @@ const AppContextProvider = ({ children }) => {
     isAuthenticated && getAllRooms();
     // reset state
     if (!isAuthenticated) {
-      setRoom(null);
-      setRoomState({
-        isLoading: true,
+      // edit here
+      setAppState({
+        isLoadingRooms: true,
         rooms: [],
+        messages: [],
+        room: null,
+        page: 1,
+        hasMore: false,
       });
     }
   }, [isAuthenticated]);
@@ -47,8 +51,14 @@ const AppContextProvider = ({ children }) => {
   // When receive message from other user
   useEffect(() => {
     socket.on("receive-message", (newMessage) => {
-      // console.log("receive message");
-      setMessages((prev) => [...prev, newMessage]);
+      setAppState((prev) => {
+        const prevMessages = prev.messages;
+        console.log(prevMessages);
+        return {
+          ...prev,
+          messages: [newMessage, ...prevMessages],
+        };
+      });
     });
 
     //Reload list room when new member has been added to a room (new member)
@@ -56,13 +66,21 @@ const AppContextProvider = ({ children }) => {
       // console.log("reload room");
       await getAllRooms();
       openNotification(`${author} has added you into a room.`);
+      console.log("render");
     });
 
     //Reload list room when new member has been added to a room (members in room)
     socket.on("reload-room-members-in", async (data) => {
       await getAllRooms();
       // reload chat room
-      setRoom(data.room);
+      // setRoom(data.room);
+
+      setAppState((prev) => {
+        return {
+          ...prev,
+          room: data.room,
+        };
+      });
 
       openNotification(
         `${data.author} has added ${data.username} into this room.`
@@ -83,7 +101,15 @@ const AppContextProvider = ({ children }) => {
     socket.on("reload-leave-room-in", async (data) => {
       await getAllRooms();
 
-      setRoom(data.room);
+      // setRoom(data.room);
+
+      setAppState((prev) => {
+        return {
+          ...prev,
+          room: data.room,
+        };
+      });
+
       openNotification(`${data.username} has left this room.`);
     });
   }, []);
@@ -92,7 +118,15 @@ const AppContextProvider = ({ children }) => {
     const res = await axios.get(`${API_URL}/room/`);
 
     if (res.data.success) {
-      setRoomState({ isLoading: false, rooms: res.data.rooms });
+      // setRoomState({ isLoading: false, rooms: res.data.rooms });
+      // edit here
+      setAppState((prev) => {
+        return {
+          ...prev,
+          isLoadingRooms: false,
+          rooms: res.data.rooms,
+        };
+      });
     }
   };
 
@@ -109,15 +143,78 @@ const AppContextProvider = ({ children }) => {
     }
   };
 
-  const getMessages = async (room) => {
-    const res = await axios.get(`${API_URL}/message/${room._id}`);
+  const loadMoreMessages = async (room) => {
+    const res = await axios.get(
+      `${API_URL}/message/${room._id}?page=${appState.page}&limit=10`
+    );
 
     if (res.data.success) {
-      setRoom(room);
-      setMessages(res.data.messages);
+      // console.log(res.data);
+      let prevMessage = appState.messages;
 
-      socket.emit("join-room", room._id);
+      // Load more messages
+      if (Object.keys(res.data.next).length > 0) {
+        setAppState((prev) => {
+          return {
+            ...prev,
+            messages: [...prevMessage, ...res.data.messages],
+            page: res.data.next.page,
+            room: room,
+            hasMore: true,
+          };
+        });
+      } else {
+        setAppState((prev) => {
+          return {
+            ...prev,
+            messages: [...prevMessage, ...res.data.messages],
+            page: 1,
+            room: room,
+            hasMore: false,
+          };
+        });
+      }
     }
+  };
+
+  // console.log(appState);
+
+  const chooseRoom = async (room) => {
+    if (appState.room === room) {
+      return;
+    }
+
+    const res = await axios.get(
+      `${API_URL}/message/${room._id}?page=1&limit=10`
+    );
+    // console.log(room);
+    // console.log(res.data);
+
+    if (res.data.success) {
+      if (Object.keys(res.data.next).length > 0) {
+        setAppState((prev) => {
+          return {
+            ...prev,
+            messages: res.data.messages,
+            page: res.data.next.page,
+            room: room,
+            hasMore: true,
+          };
+        });
+      } else {
+        setAppState((prev) => {
+          return {
+            ...prev,
+            messages: res.data.messages,
+            page: 1,
+            room: room,
+            hasMore: false,
+          };
+        });
+      }
+    }
+
+    socket.emit("join-room", room._id);
   };
 
   const sendMessage = async (content, room) => {
@@ -127,9 +224,18 @@ const AppContextProvider = ({ children }) => {
         room: room._id,
       });
 
+      console.log(res.data);
+
       if (res.data.success) {
         await socket.emit("send-message", res.data.message);
-        setMessages((prev) => [...prev, res.data.message]);
+        const prevMessages = appState.messages;
+        // setMessages((prev) => [res.data.message, ...prev]);
+        setAppState((prev) => {
+          return {
+            ...prev,
+            messages: [res.data.message, ...prevMessages],
+          };
+        });
       }
     } catch (err) {}
   };
@@ -138,7 +244,7 @@ const AppContextProvider = ({ children }) => {
     try {
       const res = await axios.post(`${API_URL}/room/add-member/`, {
         username,
-        roomId: room._id,
+        roomId: appState.room._id,
       });
 
       if (res.data.success) {
@@ -149,7 +255,14 @@ const AppContextProvider = ({ children }) => {
         });
 
         //reload room
-        setRoom(res.data.room);
+        // setRoom(res.data.room);
+        setAppState((prev) => {
+          return {
+            ...prev,
+            room: res.data.room,
+          };
+        });
+
         setAddMemberModal(false);
         openNotification(res.data.msg);
         getAllRooms();
@@ -164,7 +277,7 @@ const AppContextProvider = ({ children }) => {
   const leaveRoom = async () => {
     try {
       const res = await axios.put(`${API_URL}/room/delete-member/`, {
-        roomId: room._id,
+        roomId: appState.room._id,
       });
 
       if (res.data.success) {
@@ -173,18 +286,26 @@ const AppContextProvider = ({ children }) => {
           room: res.data.room,
         });
 
-        setRoom(null);
+        // setRoom(null);
+
+        setAppState((prev) => {
+          return {
+            ...prev,
+            room: null,
+          };
+        });
+
         await getAllRooms();
       }
     } catch (error) {}
   };
 
   const appContextData = {
+    loadMoreMessages,
+    appState,
+    setAppState,
     sidebarDrawer,
     setSidebarDrawer,
-    messages,
-    room,
-    roomState,
     getAllRooms,
     addRoomModal,
     setAddRoomModal,
@@ -193,7 +314,7 @@ const AppContextProvider = ({ children }) => {
     leaveRoomModal,
     setLeaveRoomModal,
     joinRoom,
-    getMessages,
+    chooseRoom,
     sendMessage,
     addMember,
     leaveRoom,

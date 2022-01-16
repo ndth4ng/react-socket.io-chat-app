@@ -1,12 +1,15 @@
 import { Avatar, Typography } from "antd";
 import { useContext } from "react";
 import { AuthContext } from "../../contexts/AuthContext";
+import moment from "moment";
 
 const Message = ({ text, displayName, createdAt, photoUrl }) => {
   //context
   const {
     auth: { user },
   } = useContext(AuthContext);
+
+  const formatedTime = moment(createdAt).format("MMMM Do YYYY, h:mm a");
 
   let body;
 
@@ -22,7 +25,7 @@ const Message = ({ text, displayName, createdAt, photoUrl }) => {
             {text}
           </Typography.Text>
         </div>
-        <Typography.Text className="text-xs">{createdAt}</Typography.Text>
+        <Typography.Text className="text-xs">{formatedTime}</Typography.Text>
       </div>
     );
   } else {
@@ -37,7 +40,7 @@ const Message = ({ text, displayName, createdAt, photoUrl }) => {
             {text}
           </Typography.Text>
         </div>
-        <Typography.Text className="text-xs">{createdAt}</Typography.Text>
+        <Typography.Text className="text-xs">{formatedTime}</Typography.Text>
       </div>
     );
   }

@@ -3,12 +3,17 @@ import { useContext } from "react";
 import { AppContext } from "../../contexts/AppContext";
 import Message from "./Message";
 
-import ScrollToBottom from "react-scroll-to-bottom";
+// import ScrollToBottom from "react-scroll-to-bottom";
+import InfiniteScroll from "react-infinite-scroll-component";
 import ChatHeader from "./ChatHeader";
 
 const ChatWindow = () => {
   //context
-  const { room, messages, sendMessage } = useContext(AppContext);
+  const {
+    appState: { room, messages, hasMore },
+    loadMoreMessages,
+    sendMessage,
+  } = useContext(AppContext);
   const [form] = Form.useForm();
 
   const submitForm = async () => {
@@ -21,7 +26,7 @@ const ChatWindow = () => {
 
   if (!room) {
     body = (
-      <div className="flex items-center h-[calc(100%-56px)] justify-center md:mt-0 mt-[56px] w-screen md:w-full">
+      <div className="flex items-center h-[calc(100%-56px)] justify-center md:mt-0 mt-[56px] w-screen md:w-full fixed md:static">
         <h1 className="text-xl font-bold text-green-500">Choose a room.</h1>
       </div>
     );
@@ -31,19 +36,42 @@ const ChatWindow = () => {
         <ChatHeader />
 
         <div className="flex justify-end flex-col p-4 h-[calc(100%-56px)]">
-          <ScrollToBottom className="max-h-full overflow-y-auto">
-            {messages?.map((message, index) => {
-              return (
-                <Message
-                  key={index}
-                  text={message.content}
-                  displayName={message.user.username}
-                  photoUrl=""
-                  createdAt={message.createdAt}
-                />
-              );
-            })}
-          </ScrollToBottom>
+          <div
+            id="scrollableDiv"
+            style={{
+              overflow: "auto",
+              display: "flex",
+              flexDirection: "column-reverse",
+            }}
+          >
+            {/*Put the scroll bar always on the bottom*/}
+            <InfiniteScroll
+              dataLength={messages.length}
+              next={() => loadMoreMessages(room)}
+              style={{ display: "flex", flexDirection: "column-reverse" }} //To put endMessage and loader to the top.
+              inverse={true} //
+              hasMore={hasMore}
+              loader={<h4 className="text-center">Loading...</h4>}
+              scrollableTarget="scrollableDiv"
+              // endMessage={
+              //   <p style={{ textAlign: "center" }}>
+              //     <b>Yay! You have seen it all</b>
+              //   </p>
+              // }
+            >
+              {messages.map((message, index) => {
+                return (
+                  <Message
+                    key={index}
+                    text={message.content}
+                    displayName={message.user.username}
+                    photoUrl=""
+                    createdAt={message.createdAt}
+                  />
+                );
+              })}
+            </InfiniteScroll>
+          </div>
 
           <Form
             form={form}

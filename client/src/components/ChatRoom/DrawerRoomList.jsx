@@ -6,21 +6,21 @@ import { AppContext } from "../../contexts/AppContext";
 const DrawerRoomList = () => {
   //context
   const {
-    roomState: { rooms, isLoading },
+    appState: { rooms, isLoadingRooms },
     setAddRoomModal,
-    getMessages,
+    chooseRoom,
     setSidebarDrawer,
   } = useContext(AppContext);
 
   const onClick = (room) => {
-    getMessages(room);
+    chooseRoom(room);
     setSidebarDrawer(false);
   };
 
   return (
     <div className="flex flex-col space-y-2">
       <Button onClick={() => setAddRoomModal(true)}>Add room</Button>
-      {isLoading ? (
+      {isLoadingRooms ? (
         <Spin indicator={<LoadingOutlined style={{ color: "#22C55E" }} />} />
       ) : (
         rooms.map((room, index) => {

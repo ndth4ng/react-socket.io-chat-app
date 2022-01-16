@@ -2,16 +2,33 @@ const Message = require("../models/message");
 
 module.exports = {
   getMessagesByRoomId: async (req, res) => {
+    const page = req.query.page;
+    const limit = req.query.limit;
+
+    const skip = (page - 1) * limit;
+
     try {
-      const messages = await Message.find({ room: req.params.roomId }).populate(
-        {
+      const messages = await Message.find({ room: req.params.roomId })
+        .sort({ createdAt: -1 })
+        .limit(limit)
+        .skip(skip)
+        .populate({
           path: "user",
           select: "username",
-        }
-      );
+        });
+
+      let next = {};
+
+      if (
+        page * limit <
+        (await Message.find({ room: req.params.roomId }).countDocuments())
+      ) {
+        next = { page: parseInt(page) + 1, limit: limit };
+      }
 
       res.status(200).json({
         success: true,
+        next: next,
         messages: messages,
       });
     } catch (err) {
@@ -27,7 +44,6 @@ module.exports = {
         room,
         content,
       });
-      //   console.log(newMessage);
 
       await newMessage.save((err, result) => {
         if (err) {
